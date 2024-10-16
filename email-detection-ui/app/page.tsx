@@ -7,16 +7,20 @@ import Button  from "@/components/ui/button"
 import Textarea from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import Image from 'next/image'
 
 
+interface AnalysisResult {
+    error?: string; 
+  }
 
 
 export default function EmailAnalyzer() {
   const [input, setInput] = useState('')
   const [files, setFiles] = useState<File[]>([])
-  const [links, setLinks] = useState([])
+  const [links, setLinks] = useState<string[]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -29,7 +33,16 @@ export default function EmailAnalyzer() {
       reader.readAsText(file);
     });
   }, []);
-  const { getRootProps, getInputProps, isDragActive} = useDropzone({ onDrop })
+  const { getRootProps, getInputProps, isDragActive} = useDropzone({ onDrop, accept: {
+    'image/*': [], 
+    'text/plain': [], 
+    'audio/*': [], 
+    'video/*': [],
+  }, 
+  multiple: true,onDragEnter: () => {  },
+  onDragOver: () => { },
+  onDragLeave: () => { }, 
+})
 
   const scanForLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -48,7 +61,7 @@ export default function EmailAnalyzer() {
     setIsAnalyzing(true)
     
     try {
-      // Simulating API call to Flask backend
+      // API call to Flask backend
       const response = await fetch('http://127.0.0.1:5000/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,6 +78,15 @@ export default function EmailAnalyzer() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      <div className="flex justify-center mb-8"> 
+        <Image 
+          src="email-detection-ui/.next/wwwww.jpg" 
+          alt="Email Analyzer Logo"
+          width={100}
+          height={100} 
+          className="rounded-full"
+        />
+      </div>
       <Card className="max-w-4xl mx-auto">
         <CardHeader >
           <CardTitle className="text-8xl font-bold text-center" >Email Analyzer</CardTitle>
@@ -116,24 +138,24 @@ export default function EmailAnalyzer() {
           </Button>
 
           {analysisResult && (
-            <Alert className={`mt-4 ${!analysisResult.isSuspicious ? 'bg-red-100' : 'bg-green-100'}`}>
+            <Alert className={`mt-4 ${!(analysisResult as { isSuspicious: boolean }).isSuspicious ? 'bg-red-100' : 'bg-green-100'}`}>
               <AlertTitle className="flex items-center">
                 
-              {(analysisResult.analysis === "This email contains suspicious content.") ? (
+              {((analysisResult as { analysis: string }).analysis === "This email contains suspicious content.") ? (
               <>
                 <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
-                    {analysisResult.analysis|| 'Suspicious Email Detected'}
+                    {(analysisResult as { analysis: string }).analysis|| 'Suspicious Email Detected'}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
                     
-                    {analysisResult.analysis|| 'Email Appears Safe'}
+                    {(analysisResult as { analysis: string }).analysis|| 'Email Appears Safe'}
                   </>
                 )}
               </AlertTitle>
               <AlertDescription>
-                {analysisResult.analysis}
+                {(analysisResult as { analysis: string }).analysis}
               </AlertDescription>
             </Alert>
           )}

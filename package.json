@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "lucide-react": "^0.452.0",
-    "react-dropzone": "^14.2.9"
+    "react-dropzone": "^14.2.9",
+    "next": "^14.2.15"
   }
 }
