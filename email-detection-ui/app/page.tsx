@@ -17,14 +17,14 @@ interface AnalysisResult {
 
 export default function EmailAnalyzer() {
   const [input, setInput] = useState('')
-  const [files, setFiles] = useState<File[]>([])
+  // const [files, setFiles] = useState<File[]>([])
   const [links, setLinks] = useState<string[]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFiles(acceptedFiles);
+    // setFiles(acceptedFiles);
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
